@@ -48,11 +48,11 @@
             <el-button type='primary' size='mini' icon='el-icon-edit' @click='showUpdateUser(scope.row.id)'></el-button>
             <!-- 刪除按钮-->
             <template>
-              <el-button type='danger' @click='deconsteUser(scope.row.id)' size='mini' icon='el-icon-deconste'></el-button>
+              <el-button type='danger' @click='deconsteUser(scope.row.id)' size='mini' icon='el-icon-delete'></el-button>
             </template>
             <!-- 分配角色-->
             <el-tooltip :enterable='false' class='item' effect='dark' content='分配角色' placement='top'>
-              <el-button type='warning' size='mini' icon='el-icon-setting'></el-button>
+              <el-button type='warning' size='mini' @click="showRoleDialogVisible(scope.row)" icon='el-icon-setting'></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -111,6 +111,29 @@
         <el-button type='primary' @click='updateUser()'>确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 分配角色对话框-->
+    <el-dialog title='分配权限' @close='roleFormClose()' :visible.sync='roleDialogVisible' :close-on-click-modal='false' width='50%'>
+      <!-- 内容主体区 -->
+     <div>
+       <p>当前用户:{{userInfo.username}}</p>
+       <p>当前角色:{{userInfo.role_name}}</p>
+       <p>分配角色:
+         <el-select v-model="selectedRoleId" placeholder="请选择">
+           <el-option
+             v-for="item in roleList"
+             :key="item.id"
+             :label="item.roleName"
+             :value="item.id">
+           </el-option>
+         </el-select>
+       </p>
+     </div>
+      <!-- 底部区 -->
+      <div slot='footer' class='dialog-footer'>
+        <el-button @click='roleDialogVisible = false'>取 消</el-button>
+        <el-button type='primary' @click='saveRole()'>确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -134,6 +157,8 @@ export default {
       addDialogVisible: false,
       // 控制修改用户对话框
       updateDialogVisible: false,
+      // 分配角色的对话框
+      roleDialogVisible: false,
       // 添加用户的表单数据
       addForm: {
         username: '',
@@ -143,6 +168,12 @@ export default {
       },
       // 修改的单个对象
       updateForm: {},
+      // 用户角对象
+      userInfo: {},
+      // 角色列表
+      roleList: [],
+      // 分配角色的id
+      selectedRoleId: '',
       // 校验添加用户表单规则
       addFormRules: {
         username: [
@@ -249,6 +280,11 @@ export default {
     updateFormClose () {
       this.$refs.updateFormRef.resetFields()
     },
+    // 清空表单
+    roleFormClose () {
+      this.userInfo = {}
+      this.selectedRoleId = ''
+    },
     // 删除用户
     deconsteUser (id) {
       this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
@@ -271,6 +307,7 @@ export default {
         })
       })
     },
+    // 日期格式化
     createtimeed (time) {
       if (time) {
         var date = new Date(time * 1000)
@@ -283,6 +320,35 @@ export default {
         const m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
         const s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
         return Y + M + D + h + m + s
+      }
+    },
+    // 查询角色列表
+    showRoleDialogVisible (scope) {
+      this.userInfo = scope
+      // 获取所有角色列表
+      this.$http.get('roles').then(res => {
+        if (res.data.meta.status === 200) {
+          this.roleList = res.data.data
+        } else {
+          this.$message.error(res.data.meta.msg)
+        }
+      })
+      this.roleDialogVisible = true
+    },
+    // 保存角色
+    saveRole () {
+      if (!this.selectedRoleId) {
+        return this.$message.error('请选择要分配的角色！')
+      } else {
+        this.$http.put('users/' + this.userInfo.id + '/role', { rid: this.selectedRoleId }).then(res => {
+          if (res.data.meta.status === 200) {
+            this.roleDialogVisible = false
+            this.getUserList()
+            return this.$message.success('更新角色成功！')
+          } else {
+            return this.$message.error(res.data.meta.msg)
+          }
+        })
       }
     }
   }
