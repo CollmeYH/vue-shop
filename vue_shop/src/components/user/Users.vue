@@ -47,9 +47,7 @@
             <!-- 编辑按钮-->
             <el-button type='primary' size='mini' icon='el-icon-edit' @click='showUpdateUser(scope.row.id)'></el-button>
             <!-- 刪除按钮-->
-            <template>
-              <el-button type='danger' @click='deconsteUser(scope.row.id)' size='mini' icon='el-icon-delete'></el-button>
-            </template>
+            <el-button type='danger' @click='deleteUser(scope.row.id)' size='mini' icon='el-icon-delete'></el-button>
             <!-- 分配角色-->
             <el-tooltip :enterable='false' class='item' effect='dark' content='分配角色' placement='top'>
               <el-button type='warning' size='mini' @click="showRoleDialogVisible(scope.row)" icon='el-icon-setting'></el-button>
@@ -286,13 +284,13 @@ export default {
       this.selectedRoleId = ''
     },
     // 删除用户
-    deconsteUser (id) {
+    deleteUser (id) {
       this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$http.deconste('users/' + id).then(res => {
+        this.$http.delete('users/' + id).then(res => {
           if (res.data.meta.status === 200) {
             this.$message.success(res.data.meta.msg)
             this.getUserList()

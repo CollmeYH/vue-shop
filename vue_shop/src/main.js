@@ -6,6 +6,8 @@ import './plugins/element.js'
 import './assets/css/global.css'
 
 import axios from 'axios'
+import TreeTable from 'vue-table-with-tree-grid'
+
 // 配置请求根路径
 axios.defaults.baseURL = 'http://timemeetyou.com:8889/api/private/v1/'
 // 配置axios请求拦截器，拦截每一个请求然后加上一个请求头属性
@@ -14,8 +16,8 @@ axios.interceptors.request.use(config => {
   return config
 })
 Vue.prototype.$http = axios
-
 Vue.config.productionTip = false
+Vue.component('tree-table', TreeTable)
 
 new Vue({
   router,
