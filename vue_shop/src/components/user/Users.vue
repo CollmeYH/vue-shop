@@ -12,7 +12,7 @@
       <el-row :gutter='20'>
         <el-col :span='2' style='margin-top: 8px'>用户名:</el-col>
         <el-col :span='8'>
-          <el-input placeholder='请输入内容' @clear='getUserList()' clearable v-model='queryInfo.query'>
+          <el-input placeholder='请输入内容' clearable v-model='queryInfo.query'>
             <el-button @click='getUserList()' slot='append' icon='el-icon-search'></el-button>
           </el-input>
         </el-col>
@@ -26,10 +26,10 @@
         <el-table-column prop='username' label='姓名' ></el-table-column>
         <el-table-column prop='role_name' label='角色'></el-table-column>
         <el-table-column prop='mobile' label='电话' ></el-table-column>
-        <el-table-column prop='email' label='邮箱' width='180px'></el-table-column>
+        <el-table-column prop='email' label='邮箱' width='240px'></el-table-column>
         <el-table-column prop='create_time' label='创建时间'>
           <template v-slot:default='scop'>
-            {{createtimeed(scop.row.create_time)}}
+            {{scop.row.create_time | dateFormat}}
           </template>
         </el-table-column>
         <el-table-column label='状态' width='70px'>
@@ -305,21 +305,6 @@ export default {
         })
       })
     },
-    // 日期格式化
-    createtimeed (time) {
-      if (time) {
-        var date = new Date(time * 1000)
-        console.log(date)
-        const Y = date.getFullYear() + '-'
-        console.log(Y)
-        const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
-        const D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
-        const h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
-        const m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
-        const s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
-        return Y + M + D + h + m + s
-      }
-    },
     // 查询角色列表
     showRoleDialogVisible (scope) {
       this.userInfo = scope
@@ -354,5 +339,7 @@ export default {
 </script>
 
 <style lang='less' scoped>
-
+  .el-col-2 {
+    width: 4.6666%
+  }
 </style>
